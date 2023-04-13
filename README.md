@@ -32,7 +32,7 @@ The code was never meant to be shown to anybody. My commercial code is better an
 
 ## What did I learn?
 
-- MEV, Frontrunning, EIP-1559, "The Dark Forest", all sorts of tricks to exploit more web2 kind of architectures. And all sorts of ins and outs aboout Unsiwap
+- MEV, Frontrunning, EIP-1559, "The Dark Forest", all sorts of tricks to exploit more web3 kind of architectures. And all sorts of ins and outs about Uniswap
 
   
 ## So why stop?
