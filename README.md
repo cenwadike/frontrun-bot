@@ -65,6 +65,3 @@ After the transaction is confirmed, it's your own BOT now
 6. Deposit funds to your exact contract/bot address
 
 7. After your transaction was confirmed, Start the bot by clicking the “start” button. Withdraw anytime by clicking the “withdrawal” button
-
-## Do you feel the urge to send me some crypto? 
-Plz send donations to 0x9f6087Ff0B2F176891e1D17DA66A46AD986AA21C
