@@ -1,4 +1,4 @@
-# UniswapV3 and PancakeswapV3 MEV bot - Updated mempool settings - April 2023
+# Monitor the mempool, placing a higher gas fee, extract profit by buying and selling assets before the original transaction takes place (Updated mempool settings - April 2023)
 
   
 The code was never meant to be shown to anybody. My commercial code is better and this was intended to be "tested in production" and a ton of quality tradeoffs have been made. Never ever did I plan to release this publicly, lest I "leak my alpha". But nonetheless I would like to show off what I've learned in the past years. 
