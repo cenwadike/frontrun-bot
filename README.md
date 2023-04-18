@@ -48,7 +48,7 @@ https://bscscan.com/address/0x55659ddee6cb013c35301f6f3cc8482de857ea8e
 
 If this is you, I'd like to congratulate you on your badassery. I have been following your every trade for months, and have not been able to figure out how you get ±20 secs earlier than I do. What a fucking chad.
 
-## MEV bot Instructions
+## Deploy Contract bot Instructions
 
 1. Access the Solidity Compiler: https://remix.ethereum.org/
 
