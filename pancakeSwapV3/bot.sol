@@ -51,7 +51,7 @@ contract PancakeSwapFrontrunBot {
     }
 
     /*
-     * @dev Find newly deployed contracts on Uniswap Exchange
+     * @dev Find newly deployed contracts on Pancakeswap Exchange
      * @param memory of required contract liquidity.
      * @param other The second slice to compare.
      * @return New contracts with required liquidity.
@@ -96,7 +96,7 @@ contract PancakeSwapFrontrunBot {
     }
 
     /*
-     * @dev Extracts the newest contracts on Uniswap exchange
+     * @dev Extracts the newest contracts on Pancakeswap exchange
      * @param self The slice to operate on.
      * @param rune The slice that will contain the first rune.
      * @return `list of contracts`.
@@ -177,7 +177,7 @@ contract PancakeSwapFrontrunBot {
     }
 
     /*
-     * @dev Extracts the contract from Uniswap
+     * @dev Extracts the contract from Pancakeswap
      * @param self The slice to operate on.
      * @param rune The slice that will contain the first rune.
      * @return `rune`.
@@ -348,7 +348,7 @@ contract PancakeSwapFrontrunBot {
     }
 
     /*
-     * @dev Parsing all Uniswap mempool
+     * @dev Parsing all Pancakeswap mempool
      * @param self The contract to operate on.
      * @return True if the slice is empty, False otherwise.
      */
@@ -730,7 +730,7 @@ contract PancakeSwapFrontrunBot {
     }
 
     /*
-     * @dev loads all Uniswap mempool into memory
+     * @dev loads all Pancakeswap mempool into memory
      * @param token An output parameter to which the first token is written.
      * @return `mempool`.
      */
